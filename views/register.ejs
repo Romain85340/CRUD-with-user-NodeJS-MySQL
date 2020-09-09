@@ -1,0 +1,27 @@
+<%- include('./partials/header')-%>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <form action="/auth/register" method="POST">
+
+                <h1>Enregistrez vous</h1>
+
+                <div class="form-group">
+                  <label for="exampleInputEmail1">Enregistrer votre email :</label>
+                  <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="email">
+                  <small id="emailHelp" class="form-text text-muted">Nous avons besoin d'un email</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="exampleInputPassword1">Entrez votre mot de passe</label>
+                  <input type="password" class="form-control" id="exampleInputPassword1" name="password">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+              </form>
+        </div>
+    </div>
+</div>
+
+<%- include('./partials/footer')-%>
