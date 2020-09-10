@@ -1,10 +1,11 @@
 var express = require('express');
 var router = express.Router();
 
+
 /* GET users listing. */
 router.get('/list', (req, res) => {
   let user = "SELECT id, email FROM users;"
-
+  console.log("req.session :", req.session)
   db.query( user, (err, result) => {
       console.log(result);
       if (err) {
@@ -46,5 +47,7 @@ router.get('/edit/:id', (req, res) => {
      res.render("edit", { users: result[0] })
 })
 });
+
+/* UPDATE users */
 
 module.exports = router;

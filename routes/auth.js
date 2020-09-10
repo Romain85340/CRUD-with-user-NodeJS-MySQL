@@ -2,38 +2,53 @@ var express = require('express');
 const bcrypt = require('bcrypt');
 var router = express.Router();
 
+// Middleware
+const verifyAuth = require("../middleware/auth.middleware")
+
 /* GET login page */
 router.get('/login', function(req, res, next) {
   res.render('login', {title: 'Se connecter'});
 });
 
 /* POST login */
-router.post('/login', async function(req,res){
-    let email= req.body.email;
-    let password = req.body.password;
-    db.query('SELECT * FROM users WHERE email = ?',[email], async function (error, results) {
-      if (error) {
-        res.send("L'email n'existe pas")
+router.post('/login', (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  db.query('SELECT email, password, roleId, id FROM users WHERE email= ?', [email], (err, result) => {
+      if (err || result.length === 0) {
+          console.log("result :", result);
+          return res.status(401).json({
+              error: `Vous n'êtes pas inscrit`
+          });
       } else {
-        if(results.length > 0 ){
-          const comparaison = await bcrypt.compare(password, results[0].password)
-          console.log(results[0]);
-          if(comparaison){
-              res.send("Connectez!")
-          }
-          else{
-            res.send("L'email et le mot de passe ne corresponde pas")
-          }
-        }
-        else{
-          res.send("L'email n'existe pas");
-        }
+          bcrypt.compare(password, result[0].password, (err, success) => {
+              if (err) {
+                  return res.status(401).json({
+                      error: `Mot de passe incorrect`
+                  });
+              }
+              if (success) {
+                  db.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, result[0].password], function (err, results) {
+                      if (results.length) {
+                          req.session.loggedin = true;
+                          req.session.userId = result[0].id;
+                          req.session.role = result[0].roleId;
+                          // console.log(result[0]);
+                          res.redirect('/users/list'); console.log("req.session :", req.session)
+                      } else {
+                          res.send(err)
+                      }
+                  });
+              } else {
+                  res.send('Email ou mot de passe incorrect !');
+              }
+          })
       }
-      });
   })
+});
 
 /* GET register page */
-router.get('/register', function(req, res, next) {
+router.get('/register', verifyAuth, function(req, res, next) {
     res.render('register', {title: "S'inscrire"});
 });
 
